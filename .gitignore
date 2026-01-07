@@ -2,3 +2,7 @@ model/__pycache__
 out
 website/
 docs-minimind/
+out
+checkpoints
+dataset
+MiniMind2
