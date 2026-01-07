@@ -139,5 +139,13 @@ policy_loss = -torch.min(surr1, surr2).mean()
 
 1. policy_loss,即上面提到的部分
 2. Value Loss: Critic（评论家）的任务。它的目标是：**预测得分要尽可能接近真实得分。**
-3. kl散度惩罚 :`kl_ref = (actor_logp - ref_logp).mean()`防止模型为了讨好 Reward Model 而“胡言乱语”（Reward Hacking）,让actor不走怎么
-4. 1
+3. kl散度惩罚 :`kl_ref = (actor_logp - ref_logp).mean()`防止模型为了讨好 Reward Model 而“胡言乱语”（Reward Hacking）,让**actor不走这么远**
+   - Reward Model毕竟只是在有限数据集上训练出来的,很容易被摸到边界
+   - 通过kl_ref可以防止 Actor 为了去够那个虚假的“高分”，越跑越远，彻底脱离人类语言的分布。
+4. aux_loss :  MoE (Mixture of Experts) 模型特有的。如果你的模型不是 MoE 架构，这项就是 0。它的作用是确保每个“专家”都能得到充分的训练
+
+##### **Old Actor Model (旧策略模型)**：
+
+- **身份**：它是 **Actor 的“昨天”**（或者说几步之前的快照）。
+- **状态**：**动态更新**。它不是一直冻结的，而是每隔几步就会追上现在的 Actor。
+- 隔几步就更新,能够提高数据的利用率,大大加快训练进程
